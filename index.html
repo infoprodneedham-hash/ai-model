@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Autonomous Intelligence Research Portal | Academic Client-Side LLM</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Marked.js for markdown rendering in responses -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            univ: {
+              50: '#f8fafc',
+              100: '#f1f5f9',
+              200: '#e2e8f0',
+              300: '#cbd5e1',
+              700: '#334155',
+              800: '#1e293b',
+              900: '#0f172a',
+              navy: '#0c1a30',
+              accent: '#1d4ed8',
+              gold: '#b45309',
+              goldBg: '#fef3c7'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace']
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    @keyframes pulseSoft {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .typing-dot {
+      animation: pulseSoft 1.4s infinite ease-in-out;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    
+    /* Academic scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    /* Markdown styling inside assistant responses */
+    .prose-academic p { margin-bottom: 0.65rem; line-height: 1.6; }
+    .prose-academic p:last-child { margin-bottom: 0; }
+    .prose-academic code {
+      background-color: #f1f5f9;
+      color: #0f172a;
+      padding: 0.15rem 0.35rem;
+      border-radius: 0.25rem;
+      font-size: 0.875rem;
+      font-family: monospace;
+    }
+    .prose-academic pre {
+      background-color: #0f172a;
+      color: #f8fafc;
+      padding: 0.75rem 1rem;
+      border-radius: 0.375rem;
+      overflow-x: auto;
+      margin: 0.65rem 0;
+    }
+    .prose-academic pre code {
+      background-color: transparent;
+      color: inherit;
+      padding: 0;
+    }
+    .prose-academic ul { list-style-type: disc; margin-left: 1.25rem; margin-bottom: 0.65rem; }
+    .prose-academic ol { list-style-type: decimal; margin-left: 1.25rem; margin-bottom: 0.65rem; }
+  </style>
+</head>
+
+<body class="h-full bg-slate-100 text-slate-800 flex flex-col font-sans antialiased selection:bg-blue-100 selection:text-blue-900">
+
+  <header class="bg-univ-navy text-white border-b border-slate-700 shadow-sm sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center space-x-3.5">
+        <!-- University Academic Seal / Emblem SVG -->
+        <div class="w-10 h-10 rounded-lg bg-blue-900 border border-blue-400/40 flex items-center justify-center shadow-inner">
+          <svg class="w-6 h-6 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 14l9-5-9-5-9 5 9 5z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 14v7" />
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 class="text-base font-semibold tracking-tight text-white leading-tight">National Institute of Cognitive Systems</h1>
+            <span class="text-[10px] font-mono tracking-wider uppercase bg-blue-950 text-blue-300 border border-blue-800/80 px-1.5 py-0.5 rounded">Lab Portal</span>
+          </div>
+          <p class="text-xs text-slate-300">Client-Side Edge Computing & Linguistic Research Facility</p>
+        </div>
+      </div>
+
+      <!-- Institutional Privacy Guarantee Badge -->
+      <div class="flex items-center gap-3">
+        <div class="hidden sm:flex items-center gap-2 bg-slate-800/80 border border-slate-600/70 px-3 py-1 rounded-full text-xs text-slate-200">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-emerald-500/20 animate-pulse"></span>
+          <span class="font-medium">100% Client-Side</span>
+          <span class="text-slate-500">•</span>
+          <span class="text-slate-400">Zero Server Data Transfer</span>
+        </div>
+        <button id="system-info-btn" title="View technical architecture" class="text-xs text-slate-300 hover:text-white border border-slate-600 hover:border-slate-400 px-2.5 py-1 rounded-md transition-colors">
+          Specs
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col lg:flex-row gap-6 overflow-hidden">
+    
+    <!-- Left Sidebar: Model controls, telemetry, and institutional protocol disclaimer -->
+    <aside class="w-full lg:w-80 flex flex-col gap-5 flex-shrink-0">
+      
+      <!-- System Architecture & Model Selection Card -->
+      <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-5 space-y-4">
+        <div>
+          <label for="model-selector" class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Compute Model</label>
+          <select id="model-selector" class="w-full text-sm bg-slate-50 border border-slate-300 text-slate-800 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-600 focus:outline-none transition">
+            <option value="Qwen2.5-0.5B-Instruct-q4f16_1-MLC" selected>Qwen 2.5 (0.5B) – Fast (~390 MB)</option>
+            <option value="SmolLM2-360M-Instruct-q4f16_1-MLC">SmolLM2 (360M) – Ultralight (~190 MB)</option>
+            <option value="Llama-3.2-1B-Instruct-q4f16_1-MLC">Llama 3.2 (1B) – Balanced (~700 MB)</option>
+            <option value="Qwen2.5-1.5B-Instruct-q4f16_1-MLC">Qwen 2.5 (1.5B) – Deep (~1.1 GB)</option>
+          </select>
+          <p class="text-[11px] text-slate-500 mt-1.5 leading-relaxed">
+            Weights are cached within your browser’s IndexedDB after the first download. No network bandwidth is used on future sessions.
+          </p>
+        </div>
+
+        <button id="initialize-model-btn" class="w-full py-2.5 px-4 bg-univ-navy hover:bg-slate-800 active:bg-slate-900 text-white font-medium text-sm rounded-lg shadow-sm transition flex items-center justify-center gap-2">
+          <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          <span id="init-btn-text">Load & Initialize Model</span>
+        </button>
+
+        <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+          <span class="text-slate-500">Hardware Acceleration:</span>
+          <span id="webgpu-status-pill" class="font-mono px-2 py-0.5 rounded text-[11px] bg-slate-100 text-slate-600 font-semibold">Testing WebGPU...</span>
+        </div>
+      </div>
+
+      <!-- Execution Telemetry Card -->
+      <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-4 text-xs space-y-2">
+        <h2 class="font-semibold text-slate-700 tracking-wide uppercase text-[11px]">Runtime Telemetry</h2>
+        <div class="flex justify-between py-1 border-b border-slate-100">
+          <span class="text-slate-500">Inference Device</span>
+          <span id="device-chip" class="font-mono text-slate-700 font-medium">Local GPU (WebGPU)</span>
+        </div>
+        <div class="flex justify-between py-1 border-b border-slate-100">
+          <span class="text-slate-500">Generation Speed</span>
+          <span id="speed-chip" class="font-mono text-slate-700 font-medium">0.0 tokens/s</span>
+        </div>
+        <div class="flex justify-between py-1">
+          <span class="text-slate-500">Context Retention</span>
+          <span id="tokens-chip" class="font-mono text-slate-700 font-medium">0 tokens</span>
+        </div>
+      </div>
+
+      <!-- Compliance & Institutional Notice -->
+      <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-4 text-xs text-slate-600 space-y-2">
+        <div class="flex items-center gap-1.5 font-semibold text-slate-700">
+          <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+          </svg>
+          Privacy & Ethics Disclaimer
+        </div>
+        <p class="text-[11px] leading-relaxed text-slate-500">
+          This portal processes every prompt inside your browser's sandboxed memory. No transcripts, user keystrokes, or telemetry are ever collected, logged, or forwarded to university or third-party cloud servers.
+        </p>
+      </div>
+
+    </aside>
+
+    <section class="flex-1 bg-white border border-slate-200 rounded-xl shadow-sm flex flex-col overflow-hidden relative">
+      
+      <!-- Chat Header -->
+      <div class="px-5 py-3 border-b border-slate-200 flex items-center justify-between bg-slate-50/70">
+        <div class="flex items-center space-x-2">
+          <div class="w-2.5 h-2.5 rounded-full bg-slate-300" id="status-indicator-dot"></div>
+          <span class="text-xs font-semibold text-slate-700 uppercase tracking-wider" id="conversation-status-text">Engine Standby</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="clear-chat-btn" title="Clear message history" class="text-xs text-slate-500 hover:text-slate-700 px-2 py-1 rounded hover:bg-slate-200 transition">
+            Clear History
+          </button>
+        </div>
+      </div>
+
+      <!-- Messages Stream Area -->
+      <div id="messages-container" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-slate-50/30">
+        
+        <!-- Welcome Academic Banner -->
+        <div id="welcome-message-banner" class="max-w-2xl mx-auto bg-white border border-slate-200 rounded-xl p-5 shadow-sm text-center my-6 space-y-3">
+          <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-50 border border-blue-100 text-blue-700 mb-1">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+          </div>
+          <h3 class="text-base font-semibold text-slate-800">Academic Autonomous Edge Intelligence</h3>
+          <p class="text-xs text-slate-600 max-w-lg mx-auto leading-relaxed">
+            Welcome to the laboratory workspace. Before submitting prompts, click <strong>"Load & Initialize Model"</strong> or select one of the research prompt chips below to initiate the one-time WebGPU shader assembly and weight caching.
+          </p>
+
+          <!-- Prompt Inspiration Chips -->
+          <div class="pt-3 flex flex-wrap justify-center gap-2 text-xs">
+            <button class="sample-prompt-chip bg-slate-100 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300 border border-slate-200 px-3 py-1.5 rounded-full transition text-slate-700 text-left">
+              🔬 "Explain quantum entanglement simply"
+            </button>
+            <button class="sample-prompt-chip bg-slate-100 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300 border border-slate-200 px-3 py-1.5 rounded-full transition text-slate-700 text-left">
+              📑 "Structure an abstract for an empirical study"
+            </button>
+            <button class="sample-prompt-chip bg-slate-100 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300 border border-slate-200 px-3 py-1.5 rounded-full transition text-slate-700 text-left">
+              ⚖️ "Compare inductive vs deductive reasoning"
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <div id="loading-overlay" class="hidden absolute inset-0 bg-white/95 backdrop-blur-sm z-20 flex flex-col items-center justify-center p-6 transition-all duration-300">
+        <div class="max-w-md w-full bg-white border border-slate-200 rounded-2xl shadow-xl p-6 space-y-5 text-center">
+          
+          <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-blue-50 border border-blue-200 text-blue-700 mx-auto">
+            <svg class="w-7 h-7 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+          </div>
+
+          <div>
+            <h3 class="text-base font-semibold text-slate-900" id="loading-stage-title">Preparing Local Model Environment</h3>
+            <p class="text-xs text-slate-500 mt-1 leading-relaxed" id="loading-stage-desc">
+              Please wait while the neural weights are downloaded and compiled directly into your graphic processor's memory via WebGPU.
+            </p>
+          </div>
+
+          <!-- Progress Bar Container -->
+          <div class="space-y-1.5 text-left">
+            <div class="flex justify-between text-xs font-mono">
+              <span id="loading-status-detail" class="text-slate-600 truncate max-w-[260px]">Connecting to storage...</span>
+              <span id="loading-percent" class="font-semibold text-blue-700">0%</span>
+            </div>
+            <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden border border-slate-200">
+              <div id="loading-bar-fill" class="bg-blue-600 h-full rounded-full transition-all duration-200" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <!-- Polite patience advisement -->
+          <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg text-left flex gap-2.5 items-start">
+            <svg class="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p class="text-[11px] text-amber-900 leading-normal">
+              <strong>One-time initial download:</strong> Depending on connection bandwidth, this takes roughly 30–90 seconds. Once saved, subsequent sessions launch instantaneously without downloading again.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-4 border-t border-slate-200 bg-white">
+        <form id="chat-form" class="flex flex-col sm:flex-row gap-2.5 items-end">
+          <div class="relative flex-1 w-full">
+            <textarea
+              id="prompt-input"
+              rows="2"
+              placeholder="Load the model above or type an academic query to begin..."
+              disabled
+              class="w-full text-sm bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent resize-none disabled:opacity-60 disabled:cursor-not-allowed transition"
+            ></textarea>
+          </div>
+          <button
+            type="submit"
+            id="send-button"
+            disabled
+            class="w-full sm:w-auto px-5 py-3 bg-univ-navy hover:bg-slate-800 disabled:bg-slate-300 disabled:cursor-not-allowed text-white text-sm font-medium rounded-xl shadow-sm transition flex items-center justify-center gap-1.5"
+          >
+            <span>Submit</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+          </button>
+        </form>
+        <div class="mt-2 flex items-center justify-between text-[11px] text-slate-400">
+          <span>Press <kbd class="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded text-slate-600 font-mono">Shift + Enter</kbd> for newline</span>
+          <span id="session-status-tag">Status: Idle</span>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <div id="specs-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div class="bg-white border border-slate-200 rounded-xl shadow-xl max-w-lg w-full p-6 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-800">Laboratory Architecture Specifications</h3>
+        <button id="close-specs-btn" class="text-slate-400 hover:text-slate-600">✕</button>
+      </div>
+      <div class="text-xs text-slate-600 space-y-3 leading-relaxed">
+        <p>
+          <strong>Inference Pipeline:</strong> This application executes quantized weights in browser via <code>@mlc-ai/web-llm</code> compiled with WebAssembly (Wasm) and Direct WebGPU compute kernels.
+        </p>
+        <p>
+          <strong>Weight Persistence:</strong> Neural tensor layers are stored in browser IndexedDB cache blocks. Your browser will retain them until site storage is explicitly cleared.
+        </p>
+        <p>
+          <strong>Compatibility:</strong> Requires Chromium 113+ (Google Chrome, Microsoft Edge, Brave) or modern Safari with WebGPU enabled.
+        </p>
+      </div>
+      <div class="text-right pt-2">
+        <button id="dismiss-specs-btn" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition">Dismiss</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import * as webllm from "https://esm.run/@mlc-ai/web-llm";
+
+    // DOM Element References
+    const modelSelector = document.getElementById('model-selector');
+    const initBtn = document.getElementById('initialize-model-btn');
+    const initBtnText = document.getElementById('init-btn-text');
+    const webgpuPill = document.getElementById('webgpu-status-pill');
+    const deviceChip = document.getElementById('device-chip');
+    const speedChip = document.getElementById('speed-chip');
+    const tokensChip = document.getElementById('tokens-chip');
+    const promptInput = document.getElementById('prompt-input');
+    const sendButton = document.getElementById('send-button');
+    const chatForm = document.getElementById('chat-form');
+    const messagesContainer = document.getElementById('messages-container');
+    const loadingOverlay = document.getElementById('loading-overlay');
+    const loadingBar = document.getElementById('loading-bar-fill');
+    const loadingPercent = document.getElementById('loading-percent');
+    const loadingStatusDetail = document.getElementById('loading-status-detail');
+    const statusIndicatorDot = document.getElementById('status-indicator-dot');
+    const conversationStatusText = document.getElementById('conversation-status-text');
+    const sessionStatusTag = document.getElementById('session-status-tag');
+    const clearChatBtn = document.getElementById('clear-chat-btn');
+    const welcomeBanner = document.getElementById('welcome-message-banner');
+    const specsModal = document.getElementById('specs-modal');
+    const systemInfoBtn = document.getElementById('system-info-btn');
+    const closeSpecsBtn = document.getElementById('close-specs-btn');
+    const dismissSpecsBtn = document.getElementById('dismiss-specs-btn');
+
+    // Engine & Session State Variables
+    let engine = null;
+    let isInitializing = false;
+    let isGenerating = false;
+    const conversationHistory = [
+      {
+        role: "system",
+        content: "You are an articulate, objective research assistant for an academic computing institute. Provide well-structured, clear, and informative responses."
+      }
+    ];
+
+    async function verifyWebGPUSupport() {
+      if (!navigator.gpu) {
+        webgpuPill.innerText = "Unsupported";
+        webgpuPill.className = "font-mono px-2 py-0.5 rounded text-[11px] bg-red-100 text-red-700 font-semibold";
+        deviceChip.innerText = "No WebGPU Detected";
+        alertWebGPUMissing();
+        return false;
+      }
+      try {
+        const adapter = await navigator.gpu.requestAdapter();
+        if (!adapter) {
+          throw new Error("No GPU adapter detected");
+        }
+        webgpuPill.innerText = "WebGPU Active";
+        webgpuPill.className = "font-mono px-2 py-0.5 rounded text-[11px] bg-emerald-100 text-emerald-800 font-semibold";
+        return true;
+      } catch (err) {
+        webgpuPill.innerText = "Access Denied";
+        webgpuPill.className = "font-mono px-2 py-0.5 rounded text-[11px] bg-amber-100 text-amber-800 font-semibold";
+        return false;
+      }
+    }
+
+    function alertWebGPUMissing() {
+      const banner = document.createElement("div");
+      banner.className = "bg-rose-50 border border-rose-200 text-rose-800 p-4 rounded-xl text-xs space-y-2 mb-4";
+      banner.innerHTML = `
+        <div class="font-bold flex items-center gap-1.5 text-rose-900">
+          ⚠️ WebGPU Acceleration Required
+        </div>
+        <p>Your browser does not appear to support hardware-accelerated WebGPU or has hardware acceleration turned off. We recommend opening this page in <strong>Google Chrome</strong> or <strong>Microsoft Edge</strong> with hardware acceleration enabled under browser settings.</p>
+      `;
+      messagesContainer.prepend(banner);
+    }
+
+    async function initializeEngine(selectedModel) {
+      if (isInitializing || engine) return;
+      isInitializing = true;
+      initBtn.disabled = true;
+      modelSelector.disabled = true;
+      loadingOverlay.classList.remove('hidden');
+
+      initBtnText.innerText = "Downloading...";
+      statusIndicatorDot.className = "w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping";
+      conversationStatusText.innerText = "Acquiring Model Weights";
+      sessionStatusTag.innerText = "Status: Initializing WebGPU shaders";
+
+      const initProgressCallback = (report) => {
+        const progress = Math.round(report.progress * 100) || 0;
+        loadingBar.style.width = `${progress}%`;
+        loadingPercent.innerText = `${progress}%`;
+        loadingStatusDetail.innerText = report.text || "Loading pipeline...";
+      };
+
+      try {
+        engine = await webllm.CreateMLCEngine(
+          selectedModel,
+          {
+            initProgressCallback: initProgressCallback,
+            logLevel: "INFO"
+          }
+        );
+
+        // Success state
+        loadingOverlay.classList.add('hidden');
+        initBtnText.innerText = "Model Ready";
+        statusIndicatorDot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500";
+        conversationStatusText.innerText = `${selectedModel.split('-')[0]} Online`;
+        sessionStatusTag.innerText = "Status: Ready for input";
+        
+        promptInput.disabled = false;
+        sendButton.disabled = false;
+        promptInput.placeholder = "Enter an academic inquiry or research command...";
+        promptInput.focus();
+
+      } catch (error) {
+        console.error("Model initialization failure:", error);
+        loadingOverlay.classList.add('hidden');
+        initBtn.disabled = false;
+        modelSelector.disabled = false;
+        initBtnText.innerText = "Retry Loading";
+        statusIndicatorDot.className = "w-2.5 h-2.5 rounded-full bg-rose-500";
+        conversationStatusText.innerText = "Initialization Failed";
+        sessionStatusTag.innerText = "Status: Error";
+
+        appendMessage("assistant", `**System Error:** Failed to assemble local WebGPU environment. Please verify your connection and hardware support. Details: \`${error.message}\``);
+      } finally {
+        isInitializing = false;
+      }
+    }
+
+    function appendMessage(role, initialContent = "") {
+      if (welcomeBanner && welcomeBanner.parentNode) {
+        welcomeBanner.classList.add("hidden");
+      }
+
+      const wrapper = document.createElement("div");
+      wrapper.className = `flex gap-3 text-sm ${role === "user" ? "justify-end" : "justify-start"}`;
+
+      if (role === "user") {
+        wrapper.innerHTML = `
+          <div class="max-w-[85%] sm:max-w-[75%] bg-univ-navy text-white rounded-2xl rounded-tr-sm px-4 py-3 shadow-xs">
+            <p class="whitespace-pre-wrap leading-relaxed">${escapeHtml(initialContent)}</p>
+          </div>
+        `;
+      } else {
+        wrapper.innerHTML = `
+          <div class="w-8 h-8 rounded-lg bg-blue-100 border border-blue-200 flex items-center justify-center flex-shrink-0 text-blue-800 text-xs font-bold">
+            AI
+          </div>
+          <div class="max-w-[85%] sm:max-w-[80%] bg-white border border-slate-200 rounded-2xl rounded-tl-sm px-4 py-3 shadow-xs space-y-2">
+            <div class="prose-academic text-slate-800 text-sm assistant-content">
+              ${marked.parse(initialContent)}
+            </div>
+            <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-[11px] text-slate-400">
+              <span class="font-mono text-[10px] generation-metrics">Synthesizing...</span>
+              <button class="copy-btn hover:text-slate-700 transition" title="Copy response">Copy</button>
+            </div>
+          </div>
+        `;
+
+        const copyBtn = wrapper.querySelector('.copy-btn');
+        copyBtn.addEventListener('click', () => {
+          const contentDiv = wrapper.querySelector('.assistant-content');
+          copyToClipboard(contentDiv.innerText);
+          copyBtn.innerText = "Copied!";
+          setTimeout(() => { copyBtn.innerText = "Copy"; }, 2000);
+        });
+      }
+
+      messagesContainer.appendChild(wrapper);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      return wrapper;
+    }
+
+    function appendTypingIndicator() {
+      const indicator = document.createElement("div");
+      indicator.id = "typing-bubble";
+      indicator.className = "flex gap-3 text-sm justify-start";
+      indicator.innerHTML = `
+        <div class="w-8 h-8 rounded-lg bg-blue-100 border border-blue-200 flex items-center justify-center flex-shrink-0 text-blue-800 text-xs font-bold">
+          AI
+        </div>
+        <div class="bg-white border border-slate-200 rounded-2xl rounded-tl-sm px-4 py-3 shadow-xs flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-slate-400 typing-dot"></span>
+          <span class="w-2 h-2 rounded-full bg-slate-400 typing-dot"></span>
+          <span class="w-2 h-2 rounded-full bg-slate-400 typing-dot"></span>
+        </div>
+      `;
+      messagesContainer.appendChild(indicator);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      return indicator;
+    }
+
+    async function handleChatSubmission(e) {
+      if (e) e.preventDefault();
+      const prompt = promptInput.value.trim();
+      if (!prompt || isGenerating) return;
+
+      if (!engine) {
+        await initializeEngine(modelSelector.value);
+        if (!engine) return;
+      }
+
+      promptInput.value = "";
+      promptInput.style.height = "auto";
+      promptInput.disabled = true;
+      sendButton.disabled = true;
+      isGenerating = true;
+
+      // Update UI state
+      appendMessage("user", prompt);
+      conversationHistory.push({ role: "user", content: prompt });
+      
+      const typingBubble = appendTypingIndicator();
+      sessionStatusTag.innerText = "Status: Synthesizing tokens...";
+      conversationStatusText.innerText = "Generating Inference";
+
+      let responseText = "";
+      let tokenCount = 0;
+      const startTime = performance.now();
+
+      try {
+        const stream = await engine.chat.completions.create({
+          messages: conversationHistory,
+          stream: true,
+          temperature: 0.7,
+        });
+
+        // Remove indicator once streaming initiates
+        typingBubble.remove();
+        const responseElement = appendMessage("assistant", "");
+        const contentDiv = responseElement.querySelector(".assistant-content");
+        const metricsSpan = responseElement.querySelector(".generation-metrics");
+
+        for await (const chunk of stream) {
+          const delta = chunk.choices[0]?.delta?.content || "";
+          responseText += delta;
+          tokenCount++;
+          contentDiv.innerHTML = marked.parse(responseText);
+          
+          const elapsedSec = (performance.now() - startTime) / 1000;
+          const currentSpeed = (tokenCount / elapsedSec).toFixed(1);
+          speedChip.innerText = `${currentSpeed} tokens/s`;
+          metricsSpan.innerText = `${tokenCount} tokens • ${currentSpeed} tok/s`;
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        conversationHistory.push({ role: "assistant", content: responseText });
+        tokensChip.innerText = `${tokenCount} in turn`;
+
+      } catch (err) {
+        console.error("Inference execution exception:", err);
+        if (typingBubble.parentNode) typingBubble.remove();
+        appendMessage("assistant", `*An interruption occurred during token generation: ${err.message}*`);
+      } finally {
+        isGenerating = false;
+        promptInput.disabled = false;
+        sendButton.disabled = false;
+        sessionStatusTag.innerText = "Status: Idle";
+        conversationStatusText.innerText = "Engine Ready";
+        promptInput.focus();
+      }
+    }
+
+    function copyToClipboard(text) {
+      const tempTextArea = document.createElement("textarea");
+      tempTextArea.value = text;
+      document.body.appendChild(tempTextArea);
+      tempTextArea.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        console.warn('Fallback copy failed', err);
+      }
+      document.body.removeChild(tempTextArea);
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.innerText = text;
+      return div.innerHTML;
+    }
+
+    initBtn.addEventListener('click', () => {
+      initializeEngine(modelSelector.value);
+    });
+
+    chatForm.addEventListener('submit', handleChatSubmission);
+
+    promptInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleChatSubmission();
+      }
+    });
+
+    // Auto-grow textarea height
+    promptInput.addEventListener('input', () => {
+      promptInput.style.height = 'auto';
+      promptInput.style.height = Math.min(promptInput.scrollHeight, 140) + 'px';
+    });
+
+    clearChatBtn.addEventListener('click', () => {
+      messagesContainer.innerHTML = '';
+      conversationHistory.length = 1; // Retain system prompt
+      if (welcomeBanner) {
+        welcomeBanner.classList.remove('hidden');
+        messagesContainer.appendChild(welcomeBanner);
+      }
+      tokensChip.innerText = "0 tokens";
+      speedChip.innerText = "0.0 tokens/s";
+    });
+
+    // Sample Prompt Chips
+    document.querySelectorAll('.sample-prompt-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const text = chip.innerText.replace(/^[^\w"]*/, '').replace(/"/g, '').trim();
+        promptInput.value = text;
+        if (!engine) {
+          initializeEngine(modelSelector.value);
+        } else {
+          promptInput.focus();
+        }
+      });
+    });
+
+    // Specs Modal Event Handlers
+    systemInfoBtn.addEventListener('click', () => specsModal.classList.remove('hidden'));
+    closeSpecsBtn.addEventListener('click', () => specsModal.classList.add('hidden'));
+    dismissSpecsBtn.addEventListener('click', () => specsModal.classList.add('hidden'));
+    specsModal.addEventListener('click', (e) => {
+      if (e.target === specsModal) specsModal.classList.add('hidden');
+    });
+
+    // Verify GPU on load
+    window.addEventListener('load', () => {
+      verifyWebGPUSupport();
+    });
+  </script>
+</body>
+</html>
